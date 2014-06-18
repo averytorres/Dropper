@@ -20,7 +20,7 @@ public class Board extends JPanel implements KeyListener{
 
 	final JFrame frame = new JFrame("Centipede");
 	boolean up=false,down=false,left=false,right=false,fire=false;
-	int playerX=100;
+	int playerX=245;
 	int playerY=400;
 	
 	public Board(){
@@ -45,7 +45,7 @@ public class Board extends JPanel implements KeyListener{
             public void run() {
                 repaint();
             }
-        }, 0, (long) 3);
+        }, 0, (long) 13);
         
 	}
 	
@@ -88,6 +88,7 @@ public class Board extends JPanel implements KeyListener{
 			playerX=10;
 		}
 		
+		//player body
 		g.setColor(Color.RED);
 		g.fillRect(playerX-1, playerY+8, 8, 5);
 		
@@ -102,7 +103,26 @@ public class Board extends JPanel implements KeyListener{
 	    //HITBOX LOCATION
 //	    g.setColor(Color.GREEN);
 //	    g.fillRect(playerX-7, playerY, 20, 10);
+	    
+	    if(fire)
+	    	fire(g);
 				
+	}
+
+	int fireX,fireY;
+	
+	private void fire(Graphics g) {
+		
+			g.setColor(Color.CYAN);	
+			g.fillRect(fireX, fireY, 3, 11);
+			
+			Dimension d = this.getSize();
+			if(0>fireY){
+				System.out.println("FIRE OFF SCREEN");
+				fire=false;
+			}
+			fireY=fireY-5;
+		
 	}
 
 	public void dispatch() {
@@ -124,9 +144,6 @@ public class Board extends JPanel implements KeyListener{
 		if(e.getKeyCode()==KeyEvent.VK_RIGHT){
 			right=true;
 		}
-		if(e.getKeyCode()==KeyEvent.VK_SPACE){
-			fire=true;
-		}
 		
 		
 	}
@@ -145,7 +162,13 @@ public class Board extends JPanel implements KeyListener{
 		if(e.getKeyCode()==KeyEvent.VK_RIGHT){
 			right=false;
 		}
-		
+		if(!fire){
+		if(e.getKeyCode()==KeyEvent.VK_SPACE){
+			fire=true;
+			fireX=playerX+2;
+			fireY=playerY;
+		}
+		}
 	}
 
 	public void keyTyped(KeyEvent e) {
