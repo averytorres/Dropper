@@ -13,10 +13,7 @@ public class Enemy {
 	
 	public Enemy(){
 		r= new Random();
-		
-//		enemyX=300;
-//		enemyY=300;
-//		
+
 		enemyX=r.nextInt(470);
 		enemyY=(-1)*r.nextInt(20);
 		speed=r.nextInt(3);
@@ -78,7 +75,7 @@ public class Enemy {
 	public void reset() {
 		// TODO Auto-generated method stub
 		enemyX=r.nextInt(470);
-    	setEnemyY(0);//setAlive(false);
+    	setEnemyY(0);
     	speed=r.nextInt(4);
 	}
 

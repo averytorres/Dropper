@@ -26,13 +26,71 @@ public class Board extends JPanel implements KeyListener{
 	int graveyard=0;
 	int score=0;
 	int lives=5;
+	int highScore=0;
 	Player p; 
 	Fire[] f;
 	Enemy[] e;
-	int highScore=0;
+	
 	
 	public Board(){
 
+		//settings
+		boardSettings();
+		frameSettings();
+
+		//init timer for drawing
+		Timer timer = new Timer();
+		timer.schedule(new TimerTask() {
+			public void run() {
+				repaint();
+			}
+		}, 0, (long) 13);
+
+		//initialize player, enemy and fire objects
+		initObjects();
+		
+	}
+
+
+
+	private void initObjects() {
+		
+		//set up player information 
+		p= new Player();
+		playerX=p.getPlayerX();
+		playerY=p.getPlayerY();
+
+		//initialize the amount of shots given to player
+		f= new Fire[3];
+		for(int i=0;i<f.length;i++){
+			f[i]= new Fire();
+		}
+
+		//intialize the number of enemies
+		e= new Enemy[10];
+		for(int i=0;i<e.length;i++){
+			e[i] = new Enemy();
+		}
+		
+	}
+
+
+
+	private void frameSettings() {
+		
+		//set up frame location and size
+		frame.add(this);
+		frame.setPreferredSize(new Dimension(500, 500));
+		frame.setSize(new Dimension(500, 500));
+		frame.setVisible(true);
+		frame.setLocationRelativeTo(null);
+	}
+
+
+
+	private void boardSettings() {
+		
+		//setting up board look and listeners 
 		setBackground(Color.black);
 		setFocusable(true);
 		setPreferredSize(new Dimension(400, 400));
@@ -43,34 +101,7 @@ public class Board extends JPanel implements KeyListener{
 			}        
 		});  
 		this.addKeyListener(this);
-		frame.add(this);
-		frame.setPreferredSize(new Dimension(500, 500));
-		frame.setSize(new Dimension(500, 500));
-		frame.setVisible(true);
-
-		Timer timer = new Timer();
-		timer.schedule(new TimerTask() {
-			public void run() {
-				repaint();
-			}
-		}, 0, (long) 13);
-
-		p= new Player();
-		playerX=p.getPlayerX();
-		playerY=p.getPlayerY();
-
-		f= new Fire[3];
-		for(int i=0;i<f.length;i++){
-			f[i]= new Fire();
-		}
-
-		e= new Enemy[10];
-		for(int i=0;i<e.length;i++){
-			e[i] = new Enemy();
-		}
 		
-
-	    
 	}
 
 
@@ -79,14 +110,31 @@ public class Board extends JPanel implements KeyListener{
 		super.paintComponent(g); 
 
 		if(!started){
+			
+			//beginning of game, waiting on user input
 			welcomeScreen(g);
 		}
 		else if(!gameover){
+			
 		//Draw Player To Screen
 		drawPlayer(g);
+		
+		//draw draw HUD
 		g.drawString("Score: "+score, 400, 10);
 		g.drawString("Lives: "+lives, 30, 10);
-		//Draw Enemies To Screen
+		
+		//Draw Enemies To Screen and detect collisions
+		computeGame(g);
+		
+		}
+		else{
+			
+			//draws the game over screen
+			gameover(g);
+		}
+	}
+
+	private void computeGame(Graphics g) {
 		for(int i=0;i<e.length;i++){
 			if(e[i].isAlive()){
 				e[i].draw(g);
@@ -116,14 +164,14 @@ public class Board extends JPanel implements KeyListener{
 				drawShotWithCheck(g,i);
 			}
 		}
-		}
-		else{
-			//draws the game over screen
-			gameover(g);
-		}
+		
 	}
 
+
+
 	private void resurrect(Graphics g, int i) {
+		
+		//randomly readds dead enemies 
 		if(graveyard>6){
 			Random r = new Random();
 			if(r.nextInt(500)>250){
@@ -137,6 +185,8 @@ public class Board extends JPanel implements KeyListener{
 	}
 
 	private void welcomeScreen(Graphics g) {
+		
+		//show welcome message on screen 
 		g.setFont(new Font("TimesRoman", Font.BOLD, 50));
 		g.setColor(Color.WHITE);
 		g.drawString("Dropper", (this.getWidth()/4)+40, this.getHeight()/2);
@@ -148,6 +198,7 @@ public class Board extends JPanel implements KeyListener{
 
 	private void gameover(Graphics g) {
 		
+		//player died, check for new high score and display game over screen
 		if(score>highScore){
 			updateHS();
 		}
@@ -161,10 +212,14 @@ public class Board extends JPanel implements KeyListener{
 	}
 
 	private void updateHS() {
-			highScore=score;
+		
+		//update the high score
+		highScore=score;
 	}
 
 	private void drawShotWithCheck(Graphics g, int i) {
+		
+		//draws the bullet on the screen and checks if there is a collision
 		for(int j=0;j<f.length;j++){
 
 			if(f[j].isFired()){
@@ -182,18 +237,9 @@ public class Board extends JPanel implements KeyListener{
 
 	}
 
-//	private void drawShot(Graphics g) {
-//		for(int j=0;j<f.length;j++){
-//
-//			if(f[j].isFired()){
-//				f[j].draw(g);
-//
-//			}
-//		}
-//
-//	}
-
 	private boolean checkShot(int enX, int enY, int pos) {
+		
+		//finds if there is a collision with the bullet within the enemy hitbox 
 		if(((f[pos].getFireX()<=enX+10)&&(f[pos].getFireX()>=enX-10)) && ((f[pos].getFireY()<enY+3)&&(f[pos].getFireY()>enY-35))){
 			return true;
 		}
@@ -201,6 +247,8 @@ public class Board extends JPanel implements KeyListener{
 	}
 
 	private boolean checkCollision(int enX, int enY) {
+		
+		//finds if there is a collision with the player within the enemy hitbox
 		if(((p.getPlayerX()<=enX+18)&&(p.getPlayerX()>=enX-20)) && ((p.getPlayerY()<enY+3)&&(p.getPlayerY()>enY-35))){
 
 			return true;
@@ -211,6 +259,7 @@ public class Board extends JPanel implements KeyListener{
 
 	private void drawPlayer(Graphics g) {
 
+		//calculate player trajectory  
 		if(up){
 			p.setPlayerY(p.getPlayerY()-4);
 
@@ -225,6 +274,7 @@ public class Board extends JPanel implements KeyListener{
 			p.setPlayerX(p.getPlayerX()+7);
 		}
 
+		//create bounds the player cannot pass through
 		Dimension d = this.getSize();
 		if(d.height-15<p.getPlayerY()){
 			p.setPlayerY(d.height-15);
@@ -239,19 +289,18 @@ public class Board extends JPanel implements KeyListener{
 			p.setPlayerX(10);
 		}
 
+		//draw location of player
 		playerX=p.getPlayerX();
 		playerY=p.getPlayerY();
 		p.draw(g);
 
 	}
 
-	public void dispatch() {
-		// TODO Auto-generated method stub
-
-	}
+	
 
 	public void keyPressed(KeyEvent e) {
 
+		//checks what direction is pressed for player movement
 		if(e.getKeyCode()==KeyEvent.VK_UP){
 			up=true;	
 		}
@@ -269,6 +318,8 @@ public class Board extends JPanel implements KeyListener{
 	}
 
 	public void keyReleased(KeyEvent e) {
+		
+		//checks if player has stopped moving in a direction or has fired a shot
 		if(e.getKeyCode()==KeyEvent.VK_UP){	
 			up=false;
 
@@ -284,6 +335,7 @@ public class Board extends JPanel implements KeyListener{
 		}
 		if(e.getKeyCode()==KeyEvent.VK_SPACE){
 
+			//player currently has 3 shots to use at the same time
 			if(!f[0].isFired()){
 				f[0] = new Fire(playerX+2,playerY);
 			}
@@ -294,15 +346,21 @@ public class Board extends JPanel implements KeyListener{
 				f[2] = new Fire(playerX+2,playerY);
 			}
 		}
+		
+		//player has died and gameover screen should be displayed, player is able to exit and restart with button press
 		if(gameover && e.getKeyCode()==KeyEvent.VK_ENTER){
 			resetGame();
 		}
-		if(!started && e.getKeyCode()==KeyEvent.VK_SPACE){
+		
+		//game has been open and in starting screen, player is able to start actual gameplay with button press
+		if(!started){
 			started=true;
 		}
 	}
 
 	private void resetGame() {
+		
+		//resets the information about gameplay including, lives, enemy location and score
 		lives=5;
 		gameover=false;
 		for(int i=0;i<this.e.length;i++){
@@ -316,14 +374,20 @@ public class Board extends JPanel implements KeyListener{
 		score=0;
 	}
 
-	public void keyTyped(KeyEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
 	public static void main(String[] args) throws IOException{
 		@SuppressWarnings("unused")
 		Board b = new Board();
 	}
+	
+	//unused
+	public void dispatch() {
+		// TODO Auto-generated method stub
 
+	}
+
+	//unused
+	public void keyTyped(KeyEvent e) {
+		// TODO Auto-generated method stub
+
+	}
 }
