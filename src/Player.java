@@ -1,4 +1,5 @@
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 
 
@@ -44,5 +45,41 @@ public class Player {
 	    
 	    g.setColor(Color.RED); 
 	    g.drawLine(playerX+2, playerY-4,playerX+2, playerY-4);
+	}
+
+	public void update(boolean up, boolean down, boolean left, boolean right, Dimension d) {
+		if(up){
+			this.setPlayerY(this.getPlayerY()-4);
+
+		}
+		else if(down){
+			this.setPlayerY(this.getPlayerY()+4);
+		}
+		if(left){
+			this.setPlayerX(this.getPlayerX()-7);
+		}
+		else if(right){
+			this.setPlayerX(this.getPlayerX()+7);
+		}
+
+		//create bounds the player cannot pass through
+		
+		if(d.height-15<this.getPlayerY()){
+			this.setPlayerY(d.height-15);
+		}
+		if(10>this.getPlayerY()){
+			this.setPlayerY(10);
+		}
+		if(d.width-15<this.getPlayerX()){
+			this.setPlayerX(d.width-15);
+		}
+		if(10>this.getPlayerX()){
+			this.setPlayerX(10);
+		}
+
+		//draw location of player
+		playerX=this.getPlayerX();
+		playerY=this.getPlayerY();
+		
 	}
 }

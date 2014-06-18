@@ -27,6 +27,7 @@ public class Board extends JPanel implements KeyListener{
 	int score=0;
 	int lives=5;
 	int highScore=0;
+	long wait;
 	Player p; 
 	Fire[] f;
 	Enemy[] e;
@@ -54,6 +55,8 @@ public class Board extends JPanel implements KeyListener{
 
 
 	private void initObjects() {
+		
+		wait = System.nanoTime();
 		
 		//set up player information 
 		p= new Player();
@@ -116,8 +119,8 @@ public class Board extends JPanel implements KeyListener{
 		}
 		else if(!gameover){
 			
-		//Draw Player To Screen
-		drawPlayer(g);
+		//Update Player info
+		updatePlayer(g);
 		
 		//draw draw HUD
 		g.drawString("Score: "+score, 400, 10);
@@ -148,8 +151,10 @@ public class Board extends JPanel implements KeyListener{
 					lives--;
 					
 					//player loses game
-					if(lives<1)
+					if(lives<1){
 						gameover=true;
+						wait=System.nanoTime();
+					}
 				}
 
 				//Draw Bullets To Screen && check for hit
@@ -193,6 +198,12 @@ public class Board extends JPanel implements KeyListener{
 		g.setFont(new Font("TimesRoman", Font.BOLD, 20));
 		g.setColor(Color.DARK_GRAY);
 		g.drawString("by Avery Torres", (this.getWidth()/4)+60, (this.getHeight()/2)+40);
+		System.out.println(System.nanoTime()-wait);
+		if(System.nanoTime()-wait>3000000000l){
+			g.setFont(new Font("TimesRoman", Font.BOLD, 10));
+			g.setColor(Color.GRAY);
+			g.drawString("Press SPACE to start", (this.getWidth()/4)+90, (this.getHeight()/2)+60);
+		}
 		
 	}
 
@@ -208,7 +219,12 @@ public class Board extends JPanel implements KeyListener{
 		g.setColor(Color.WHITE);
 		g.setFont(new Font("TimesRoman", Font.BOLD, 30));
 		g.drawString("Your Score:"+score, (this.getWidth()/4)+40, (this.getHeight()/2)+50);
-		g.drawString("High Score:"+highScore, (this.getWidth()/4)+40, (this.getHeight()/2)+80);	
+		g.drawString("High Score:"+highScore, (this.getWidth()/4)+40, (this.getHeight()/2)+80);
+		if(System.nanoTime()-wait>3000000000l){
+			g.setFont(new Font("TimesRoman", Font.BOLD, 10));
+			g.setColor(Color.GRAY);
+			g.drawString("Press SPACE to retry", (this.getWidth()/4)+90, (this.getHeight()/2)+160);
+		}
 	}
 
 	private void updateHS() {
@@ -257,39 +273,11 @@ public class Board extends JPanel implements KeyListener{
 
 	}
 
-	private void drawPlayer(Graphics g) {
+	private void updatePlayer(Graphics g) {
 
-		//calculate player trajectory  
-		if(up){
-			p.setPlayerY(p.getPlayerY()-4);
-
-		}
-		else if(down){
-			p.setPlayerY(p.getPlayerY()+4);
-		}
-		if(left){
-			p.setPlayerX(p.getPlayerX()-7);
-		}
-		else if(right){
-			p.setPlayerX(p.getPlayerX()+7);
-		}
-
-		//create bounds the player cannot pass through
+		//calculate player trajectory
 		Dimension d = this.getSize();
-		if(d.height-15<p.getPlayerY()){
-			p.setPlayerY(d.height-15);
-		}
-		if(10>p.getPlayerY()){
-			p.setPlayerY(10);
-		}
-		if(d.width-15<p.getPlayerX()){
-			p.setPlayerX(d.width-15);
-		}
-		if(10>p.getPlayerX()){
-			p.setPlayerX(10);
-		}
-
-		//draw location of player
+		p.update(up,down,left,right,d);
 		playerX=p.getPlayerX();
 		playerY=p.getPlayerY();
 		p.draw(g);
@@ -348,12 +336,14 @@ public class Board extends JPanel implements KeyListener{
 		}
 		
 		//player has died and gameover screen should be displayed, player is able to exit and restart with button press
-		if(gameover && e.getKeyCode()==KeyEvent.VK_ENTER){
+		if(gameover && e.getKeyCode()==KeyEvent.VK_SPACE&&(System.nanoTime()-wait>3000000000l)){
+			wait=System.nanoTime();
 			resetGame();
+			
 		}
 		
 		//game has been open and in starting screen, player is able to start actual gameplay with button press
-		if(!started){
+		if(!started&& e.getKeyCode()==KeyEvent.VK_SPACE&&(System.nanoTime()-wait>900000000l)){
 			started=true;
 		}
 	}
@@ -363,6 +353,7 @@ public class Board extends JPanel implements KeyListener{
 		//resets the information about gameplay including, lives, enemy location and score
 		lives=5;
 		gameover=false;
+		wait=System.nanoTime();
 		for(int i=0;i<this.e.length;i++){
 			this.e[i].reset();
 			this.e[i].setAlive(true);
