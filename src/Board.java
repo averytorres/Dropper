@@ -142,9 +142,9 @@ public class Board extends JPanel implements KeyListener{
 	private void computeGame(Graphics g) {
 		
 		if(score> 30 && score < 40) numEnemies = 15;
-		else if(score> 40 && score < 50) numEnemies = 25;
-		else if(score> 50 && score < 60) numEnemies = 35;
-		else if(score> 70 && score < 80) numEnemies = 45;
+		else if(score> 40 && score < 50) numEnemies = 20;
+		else if(score> 50 && score < 60) numEnemies = 25;
+		else if(score> 70 && score < 80) numEnemies = 35;
 		else if(score>100) numEnemies =100;
 			
 		for(int i=0;i<numEnemies;i++){
