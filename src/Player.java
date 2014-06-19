@@ -48,6 +48,7 @@ public class Player {
 	}
 
 	public void update(boolean up, boolean down, boolean left, boolean right, Dimension d) {
+		//check for movment 
 		if(up){
 			this.setPlayerY(this.getPlayerY()-4);
 

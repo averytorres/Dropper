@@ -27,6 +27,7 @@ public class Board extends JPanel implements KeyListener{
 	int score=0;
 	int lives=5;
 	int highScore=0;
+	int numEnemies=10;
 	long wait;
 	Player p; 
 	Fire[] f;
@@ -70,7 +71,7 @@ public class Board extends JPanel implements KeyListener{
 		}
 
 		//intialize the number of enemies
-		e= new Enemy[10];
+		e= new Enemy[100];
 		for(int i=0;i<e.length;i++){
 			e[i] = new Enemy();
 		}
@@ -87,6 +88,7 @@ public class Board extends JPanel implements KeyListener{
 		frame.setSize(new Dimension(500, 500));
 		frame.setVisible(true);
 		frame.setLocationRelativeTo(null);
+		frame.setResizable(false);
 	}
 
 
@@ -138,7 +140,14 @@ public class Board extends JPanel implements KeyListener{
 	}
 
 	private void computeGame(Graphics g) {
-		for(int i=0;i<e.length;i++){
+		
+		if(score> 30 && score < 40) numEnemies = 15;
+		else if(score> 40 && score < 50) numEnemies = 25;
+		else if(score> 50 && score < 60) numEnemies = 35;
+		else if(score> 70 && score < 80) numEnemies = 45;
+		else if(score>100) numEnemies =100;
+			
+		for(int i=0;i<numEnemies;i++){
 			if(e[i].isAlive()){
 				e[i].draw(g);
 
@@ -177,7 +186,7 @@ public class Board extends JPanel implements KeyListener{
 	private void resurrect(Graphics g, int i) {
 		
 		//randomly readds dead enemies 
-		if(graveyard>6){
+		if(graveyard>7){
 			Random r = new Random();
 			if(r.nextInt(500)>250){
 				e[i].setAlive(true);
@@ -198,7 +207,7 @@ public class Board extends JPanel implements KeyListener{
 		g.setFont(new Font("TimesRoman", Font.BOLD, 20));
 		g.setColor(Color.DARK_GRAY);
 		g.drawString("by Avery Torres", (this.getWidth()/4)+60, (this.getHeight()/2)+40);
-		System.out.println(System.nanoTime()-wait);
+		
 		if(System.nanoTime()-wait>3000000000l){
 			g.setFont(new Font("TimesRoman", Font.BOLD, 10));
 			g.setColor(Color.GRAY);
@@ -245,6 +254,7 @@ public class Board extends JPanel implements KeyListener{
 				if(shot){
 					e[i].reset();
 					e[i].setAlive(false);
+					f[j].setFired(false);
 					graveyard++;
 					score++;
 				}
@@ -352,6 +362,7 @@ public class Board extends JPanel implements KeyListener{
 		
 		//resets the information about gameplay including, lives, enemy location and score
 		lives=5;
+		numEnemies=10;
 		gameover=false;
 		wait=System.nanoTime();
 		for(int i=0;i<this.e.length;i++){
