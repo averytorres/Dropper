@@ -7,11 +7,18 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.DataLine;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -32,6 +39,7 @@ public class Board extends JPanel implements KeyListener{
 	Player p; 
 	Fire[] f;
 	Enemy[] e;
+	Welcome w;   
 	
 	
 	public Board(){
@@ -58,6 +66,7 @@ public class Board extends JPanel implements KeyListener{
 	private void initObjects() {
 		
 		wait = System.nanoTime();
+		w = new Welcome(this.getWidth(),this.getHeight(),wait,this);
 		
 		//set up player information 
 		p= new Player();
@@ -89,6 +98,27 @@ public class Board extends JPanel implements KeyListener{
 		frame.setVisible(true);
 		frame.setLocationRelativeTo(null);
 		frame.setResizable(false);
+		try {
+			
+		    URL yourFile= this.getClass().getResource("/music/intro.wav");
+		    AudioInputStream stream;
+		    AudioFormat format;
+		    DataLine.Info info;
+		    Clip clip;
+
+		    stream = AudioSystem.getAudioInputStream(yourFile);
+		    format = stream.getFormat();
+		    info = new DataLine.Info(Clip.class, format);
+		    clip = (Clip) AudioSystem.getLine(info);
+		    
+		    clip.open(stream);
+		    clip.loop(-1);
+		    clip.start();
+		}
+		catch (Exception e) {
+		    //whatevers
+			System.out.println("music fail");
+		}
 	}
 
 
@@ -117,25 +147,26 @@ public class Board extends JPanel implements KeyListener{
 		if(!started){
 			
 			//beginning of game, waiting on user input
-			welcomeScreen(g);
+			//welcomeScreen(g);
+			w.welcomeScreen(g);
 		}
 		else if(!gameover){
 			
 		//Update Player info
-		updatePlayer(g);
-		
-		//draw draw HUD
-		g.drawString("Score: "+score, 400, 10);
-		g.drawString("Lives: "+lives, 30, 10);
-		
-		//Draw Enemies To Screen and detect collisions
-		computeGame(g);
+//		updatePlayer(g);
+//		
+//		//draw draw HUD
+//		g.drawString("Score: "+score, 400, 10);
+//		g.drawString("Lives: "+lives, 30, 10);
+//		
+//		//Draw Enemies To Screen and detect collisions
+//		computeGame(g);
 		
 		}
 		else{
 			
 			//draws the game over screen
-			gameover(g);
+//			gameover(g);
 		}
 	}
 
